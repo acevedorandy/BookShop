@@ -1,0 +1,196 @@
+@model BookShop.Web.Models.LibroViewModel
+@{
+    ViewData["Title"] = "Editar Libro";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-pencil"></i> Editar Libro: @Model.Titulo
+                </h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="LibroID" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label asp-for="Titulo" class="form-label"></label>
+                                <input asp-for="Titulo" class="form-control" placeholder="Ingrese el título del libro" />
+                                <span asp-validation-for="Titulo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ISBN" class="form-label"></label>
+                                <input asp-for="ISBN" class="form-control" placeholder="ISBN del libro" readonly />
+                                <span asp-validation-for="ISBN" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle"></i> El ISBN no se puede modificar
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AutorID" class="form-label"></label>
+                                <select asp-for="AutorID" class="form-select" asp-items="ViewBag.Autores">
+                                    <option value="">-- Seleccionar Autor --</option>
+                                </select>
+                                <span asp-validation-for="AutorID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="GeneroID" class="form-label"></label>
+                                <select asp-for="GeneroID" class="form-select" asp-items="ViewBag.Generos">
+                                    <option value="">-- Seleccionar Género --</option>
+                                </select>
+                                <span asp-validation-for="GeneroID" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="AñoPublicacion" class="form-label"></label>
+                                <input asp-for="AñoPublicacion" class="form-control" type="number" min="1900" max="2100" />
+                                <span asp-validation-for="AñoPublicacion" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Precio" class="form-label"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0.01" />
+                                </div>
+                                <span asp-validation-for="Precio" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Stock" class="form-label"></label>
+                                <input asp-for="Stock" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="Stock" class="text-danger"></span>
+                                @if (Model.StockBajo)
+                                {
+                                    <div class="form-text text-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> Stock bajo - considere reponer
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Portada" class="form-label"></label>
+                        <input asp-for="Portada" class="form-control" placeholder="URL de la imagen de portada (opcional)" />
+                        <span asp-validation-for="Portada" class="text-danger"></span>
+                        <div class="form-text">Puede ser una URL de imagen o ruta local</div>
+                    </div>
+
+                    <!-- Información del Libro -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-info-circle"></i> Información del Libro
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>ID:</strong> @Model.LibroID</p>
+                                    <p class="mb-1"><strong>ISBN:</strong> @Model.ISBN</p>
+                                    <p class="mb-1"><strong>Stock Actual:</strong> 
+                                        <span class="badge @(Model.StockBajo ? "bg-warning" : "bg-success")">
+                                            @Model.Stock
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Estado:</strong> 
+                                        @if (Model.StockBajo)
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-exclamation-triangle"></i> Stock Bajo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Stock Normal
+                                            </span>
+                                        }
+                                    </p>
+                                    <p class="mb-1"><strong>Valor en Inventario:</strong> 
+                                        <span class="text-success fw-bold">
+                                            $@((Model.Precio * Model.Stock).ToString("N2"))
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver al Inventario
+                        </a>
+                        <div>
+                            <a asp-action="Delete" asp-route-id="@Model.LibroID" class="btn btn-outline-danger me-2">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Validación en tiempo real
+            $('#Precio').on('input', function() {
+                var precio = $(this).val();
+                if (precio < 0) {
+                    $(this).val(0);
+                }
+            });
+
+            $('#Stock').on('input', function() {
+                var stock = $(this).val();
+                if (stock < 0) {
+                    $(this).val(0);
+                }
+            });
+
+            // Confirmar antes de guardar cambios
+            $('form').submit(function(e) {
+                var titulo = $('#Titulo').val();
+                var autor = $('#AutorID').val();
+                var genero = $('#GeneroID').val();
+                
+                if (!titulo || !autor || !genero) {
+                    e.preventDefault();
+                    alert('Por favor complete todos los campos obligatorios antes de guardar.');
+                    return false;
+                }
+                
+                return confirm('¿Está seguro de que desea guardar los cambios en este libro?');
+            });
+        });
+    </script>
+}

@@ -1,0 +1,172 @@
+@model BookShop.Web.Models.LibroViewModel
+@{
+    ViewData["Title"] = "Eliminar Libro";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="card-title">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle"></i> ¡Atención!
+                    </h4>
+                    <p class="mb-0">
+                        Está a punto de eliminar el libro <strong>"@Model.Titulo"</strong>. 
+                        Esta acción no se puede deshacer.
+                    </p>
+                </div>
+
+                <!-- Información del Libro a Eliminar -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-book"></i> Información del Libro
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                @if (!string.IsNullOrEmpty(Model.Portada))
+                                {
+                                    <img src="@Model.Portada" alt="Portada" class="img-thumbnail" style="max-width: 100px; max-height: 140px;" />
+                                }
+                                else
+                                {
+                                    <div class="bg-light border rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 100px; height: 140px;">
+                                        <i class="bi bi-book text-muted display-6"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-10">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Título:</strong> @Model.Titulo</p>
+                                        <p class="mb-1"><strong>Autor:</strong> @Model.NombreAutor</p>
+                                        <p class="mb-1"><strong>Género:</strong> @Model.NombreGenero</p>
+                                        <p class="mb-1"><strong>ISBN:</strong> <code>@Model.ISBN</code></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Año:</strong> @Model.AñoPublicacion</p>
+                                        <p class="mb-1"><strong>Precio:</strong> 
+                                            <span class="text-success fw-bold">$@Model.Precio.ToString("N2")</span>
+                                        </p>
+                                        <p class="mb-1"><strong>Stock:</strong> 
+                                            <span class="badge @(Model.StockBajo ? "bg-warning" : "bg-success") fs-6">
+                                                @Model.Stock
+                                            </span>
+                                        </p>
+                                        <p class="mb-1"><strong>Valor en Inventario:</strong> 
+                                            <span class="text-success fw-bold">
+                                                $@((Model.Precio * Model.Stock).ToString("N2"))
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advertencias -->
+                <div class="card border-warning mb-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-exclamation-triangle"></i> Consideraciones Importantes
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Este libro se eliminará permanentemente de la base de datos</li>
+                            <li>Si hay ventas registradas de este libro, se mantendrá el historial</li>
+                            <li>El stock actual se perderá y no se podrá recuperar</li>
+                            <li>Esta acción afectará las estadísticas del sistema</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Formulario de Confirmación -->
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="LibroID" />
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmarEliminacion" required />
+                            <label class="form-check-label" for="confirmarEliminacion">
+                                He leído y entiendo las consecuencias de eliminar este libro
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="motivoEliminacion" class="form-label">Motivo de la eliminación (opcional):</label>
+                        <textarea class="form-control" id="motivoEliminacion" rows="2" 
+                                  placeholder="Describa brevemente el motivo de la eliminación..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger" id="btnEliminar" disabled>
+                            <i class="bi bi-trash"></i> Eliminar Definitivamente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Habilitar/deshabilitar botón de eliminación según confirmación
+            $('#confirmarEliminacion').change(function() {
+                $('#btnEliminar').prop('disabled', !this.checked);
+            });
+
+            // Confirmación adicional antes de enviar
+            $('form').submit(function(e) {
+                if (!$('#confirmarEliminacion').is(':checked')) {
+                    e.preventDefault();
+                    alert('Debe confirmar que entiende las consecuencias antes de continuar.');
+                    return false;
+                }
+
+                var titulo = '@Model.Titulo';
+                var stock = @Model.Stock;
+                var valorInventario = @(Model.Precio * Model.Stock);
+
+                var mensaje = `¿Está completamente seguro de que desea eliminar "${titulo}"?\n\n` +
+                             `Stock actual: ${stock} unidades\n` +
+                             `Valor en inventario: $${valorInventario.toFixed(2)}\n\n` +
+                             `Esta acción NO se puede deshacer.`;
+
+                return confirm(mensaje);
+            });
+
+            // Mostrar advertencia si hay stock
+            @if (Model.Stock > 0)
+            {
+                <text>
+                var stock = @Model.Stock;
+                var valorInventario = @(Model.Precio * Model.Stock);
+                
+                if (stock > 0) {
+                    $('.alert-warning').append(
+                        '<hr><p class="mb-0"><strong>Stock actual:</strong> ' + stock + ' unidades ' +
+                        '($' + valorInventario.toFixed(2) + ' en inventario)</p>'
+                    );
+                }
+                </text>
+            }
+        });
+    </script>
+}

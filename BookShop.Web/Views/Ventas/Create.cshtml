@@ -1,0 +1,215 @@
+@model BookShop.Web.Models.VentaViewModel
+@{
+    ViewData["Title"] = "Nueva Venta";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-cart-plus"></i> Registrar Nueva Venta
+                </h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" id="ventaForm">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label asp-for="LibroID" class="form-label"></label>
+                                <select asp-for="LibroID" class="form-select" asp-items="ViewBag.Libros" id="libroSelect">
+                                    <option value="">-- Seleccionar Libro --</option>
+                                </select>
+                                <span asp-validation-for="LibroID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Stock Disponible</label>
+                                <input type="text" class="form-control" id="stockDisponible" readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Cantidad" class="form-label"></label>
+                                <input asp-for="Cantidad" class="form-control" type="number" min="1" id="cantidadInput" />
+                                <span asp-validation-for="Cantidad" class="text-danger"></span>
+                                <div class="form-text">Cantidad a vender</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Precio Unitario</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="precioUnitario" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Total</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="totalVenta" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información del Libro Seleccionado -->
+                    <div id="libroInfo" class="card bg-light mb-3" style="display: none;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div id="portadaLibro" class="text-center">
+                                        <i class="bi bi-book display-4 text-muted"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-10">
+                                    <h5 id="tituloLibro" class="card-title"></h5>
+                                    <p id="autorLibro" class="card-text"></p>
+                                    <p id="isbnLibro" class="card-text"><small class="text-muted"></small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validaciones -->
+                    <div id="validaciones" class="alert alert-warning" style="display: none;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span id="mensajeValidacion"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver a Ventas
+                        </a>
+                        <button type="submit" class="btn btn-success" id="btnGuardar">
+                            <i class="bi bi-check-circle"></i> Confirmar Venta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            var libros = @Html.Raw(Json.Serialize(ViewBag.Libros));
+            var libroSeleccionado = null;
+
+            // Cuando se selecciona un libro
+            $('#libroSelect').change(function() {
+                var libroId = $(this).val();
+                if (libroId) {
+                    // Buscar información del libro
+                    var libro = libros.find(l => l.value == libroId);
+                    if (libro) {
+                        mostrarInformacionLibro(libro);
+                        calcularTotal();
+                    }
+                } else {
+                    ocultarInformacionLibro();
+                }
+            });
+
+            // Cuando cambia la cantidad
+            $('#cantidadInput').on('input', function() {
+                calcularTotal();
+                validarStock();
+            });
+
+            function mostrarInformacionLibro(libro) {
+                libroSeleccionado = libro;
+                
+                // Extraer información del texto del libro
+                var texto = libro.text;
+                var match = texto.match(/(.*?) - (.*?) \(Stock: (\d+)\)/);
+                
+                if (match) {
+                    var titulo = match[1];
+                    var autor = match[2];
+                    var stock = parseInt(match[3]);
+                    
+                    $('#tituloLibro').text(titulo);
+                    $('#autorLibro').text('Autor: ' + autor);
+                    $('#isbnLibro').text('Stock disponible: ' + stock);
+                    $('#stockDisponible').val(stock);
+                    
+                    // Obtener precio del libro (esto se implementaría con una llamada AJAX)
+                    // Por ahora usamos un precio fijo para demostración
+                    var precio = 25.99; // Este valor debería venir de la base de datos
+                    $('#precioUnitario').val(precio.toFixed(2));
+                    
+                    $('#libroInfo').show();
+                    $('#validaciones').hide();
+                }
+            }
+
+            function ocultarInformacionLibro() {
+                libroSeleccionado = null;
+                $('#libroInfo').hide();
+                $('#stockDisponible').val('');
+                $('#precioUnitario').val('');
+                $('#totalVenta').val('');
+                $('#validaciones').hide();
+            }
+
+            function calcularTotal() {
+                var cantidad = parseInt($('#cantidadInput').val()) || 0;
+                var precio = parseFloat($('#precioUnitario').val()) || 0;
+                var total = cantidad * precio;
+                
+                $('#totalVenta').val(total.toFixed(2));
+            }
+
+            function validarStock() {
+                var cantidad = parseInt($('#cantidadInput').val()) || 0;
+                var stock = parseInt($('#stockDisponible').val()) || 0;
+                
+                if (cantidad > stock) {
+                    $('#mensajeValidacion').text('La cantidad solicitada excede el stock disponible.');
+                    $('#validaciones').show();
+                    $('#btnGuardar').prop('disabled', true);
+                } else if (cantidad <= 0) {
+                    $('#mensajeValidacion').text('La cantidad debe ser mayor a 0.');
+                    $('#validaciones').show();
+                    $('#btnGuardar').prop('disabled', true);
+                } else {
+                    $('#validaciones').hide();
+                    $('#btnGuardar').prop('disabled', false);
+                }
+            }
+
+            // Validación del formulario antes de enviar
+            $('#ventaForm').submit(function(e) {
+                if (!libroSeleccionado) {
+                    e.preventDefault();
+                    alert('Debe seleccionar un libro para continuar.');
+                    return false;
+                }
+                
+                var cantidad = parseInt($('#cantidadInput').val()) || 0;
+                var stock = parseInt($('#stockDisponible').val()) || 0;
+                
+                if (cantidad > stock) {
+                    e.preventDefault();
+                    alert('La cantidad solicitada excede el stock disponible.');
+                    return false;
+                }
+                
+                return true;
+            });
+        });
+    </script>
+}

@@ -1,0 +1,135 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="display-4 text-center mb-4">
+            <i class="bi bi-book text-primary"></i> Bienvenido a Biblos
+        </h1>
+        <p class="lead text-center mb-5">Sistema de Gestión de Librería</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Inventario</h4>
+                        <p class="card-text">Gestiona tu catálogo de libros</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-collection display-4"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Index", "Libros")" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-right"></i> Ver Inventario
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Ventas</h4>
+                        <p class="card-text">Registra y gestiona ventas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-cart display-4"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Index", "Ventas")" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-right"></i> Ver Ventas
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Estadísticas</h4>
+                        <p class="card-text">Reportes y métricas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-graph-up display-4"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("Index", "Estadisticas")" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-right"></i> Ver Estadísticas
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Stock Bajo</h4>
+                        <p class="card-text">Alertas de inventario</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-exclamation-triangle display-4"></i>
+                    </div>
+                </div>
+                <a href="@Url.Action("StockBajo", "Estadisticas")" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-right"></i> Ver Alertas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning"></i> Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Create", "Libros")" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle"></i> Agregar Nuevo Libro
+                    </a>
+                    <a href="@Url.Action("Create", "Ventas")" class="btn btn-outline-success">
+                        <i class="bi bi-cart-plus"></i> Registrar Venta
+                    </a>
+                    <a href="@Url.Action("Dashboard", "Estadisticas")" class="btn btn-outline-info">
+                        <i class="bi bi-bar-chart"></i> Ver Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle"></i> Información del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <p><strong>BookShop</strong> es un sistema completo de gestión de librería que te permite:</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check text-success"></i> Gestionar inventario de libros</li>
+                    <li><i class="bi bi-check text-success"></i> Registrar ventas y actualizar stock</li>
+                    <li><i class="bi bi-check text-success"></i> Generar reportes y estadísticas</li>
+                    <li><i class="bi bi-check text-success"></i> Recibir alertas de stock bajo</li>
+                    <li><i class="bi bi-check text-success"></i> Exportar datos en múltiples formatos</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

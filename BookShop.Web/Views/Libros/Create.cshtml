@@ -1,0 +1,134 @@
+@model BookShop.Web.Models.LibroViewModel
+@{
+    ViewData["Title"] = "Nuevo Libro";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-plus-circle"></i> Registrar Nuevo Libro
+                </h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label asp-for="Titulo" class="form-label"></label>
+                                <input asp-for="Titulo" class="form-control" placeholder="Ingrese el título del libro" />
+                                <span asp-validation-for="Titulo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ISBN" class="form-label"></label>
+                                <input asp-for="ISBN" class="form-control" placeholder="ISBN del libro" />
+                                <span asp-validation-for="ISBN" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="AutorID" class="form-label"></label>
+                                <select asp-for="AutorID" class="form-select" asp-items="ViewBag.Autores">
+                                    <option value="">-- Seleccionar Autor --</option>
+                                </select>
+                                <span asp-validation-for="AutorID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="GeneroID" class="form-label"></label>
+                                <select asp-for="GeneroID" class="form-select" asp-items="ViewBag.Generos">
+                                    <option value="">-- Seleccionar Género --</option>
+                                </select>
+                                <span asp-validation-for="GeneroID" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="AñoPublicacion" class="form-label"></label>
+                                <input asp-for="AñoPublicacion" class="form-control" type="number" min="1900" max="2100" />
+                                <span asp-validation-for="AñoPublicacion" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Precio" class="form-label"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0.01" />
+                                </div>
+                                <span asp-validation-for="Precio" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Stock" class="form-label"></label>
+                                <input asp-for="Stock" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="Stock" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Portada" class="form-label"></label>
+                        <input asp-for="Portada" class="form-control" placeholder="URL de la imagen de portada (opcional)" />
+                        <span asp-validation-for="Portada" class="text-danger"></span>
+                        <div class="form-text">Puede ser una URL de imagen o ruta local</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver al Inventario
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Guardar Libro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Validación en tiempo real
+        $(document).ready(function() {
+            $('#ISBN').on('input', function() {
+                var isbn = $(this).val();
+                if (isbn.length > 0) {
+                    // Formatear ISBN (ejemplo básico)
+                    isbn = isbn.replace(/[^0-9X]/gi, '');
+                    $(this).val(isbn);
+                }
+            });
+
+            $('#Precio').on('input', function() {
+                var precio = $(this).val();
+                if (precio < 0) {
+                    $(this).val(0);
+                }
+            });
+
+            $('#Stock').on('input', function() {
+                var stock = $(this).val();
+                if (stock < 0) {
+                    $(this).val(0);
+                }
+            });
+        });
+    </script>
+}

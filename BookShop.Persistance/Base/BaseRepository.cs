@@ -1,6 +1,4 @@
-﻿
-
-using BookShop.Persistance.Context;
+﻿using BookShop.Persistance.Context;
 using Microsoft.EntityFrameworkCore;
 using RealEstate.Domain.Repositories;
 using RealEstate.Domain.Result;

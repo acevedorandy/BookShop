@@ -9,125 +9,71 @@ using RealEstate.Persistance.Base;
 
 namespace BookShop.Persistance.Repositories.dbo
 {
-    public sealed class AutoresRepository(BookShopContext bookShopContext,
-                                          ILogger<AutoresRepository> logger) : BaseRepository<Autores>(bookShopContext), IAutoresRepository
+    public sealed class AutoresRepository : BaseRepository<Autores>, IAutoresRepository
     {
-        private readonly BookShopContext _bookShopContext = bookShopContext;
-        private readonly ILogger<AutoresRepository> _logger = logger;
+        private readonly BookShopContext _bookShopContext;
+        private readonly ILogger<AutoresRepository> _logger;
 
-        public async override Task<OperationResult> Save(Autores autores)
+        public AutoresRepository(BookShopContext bookShopContext, ILogger<AutoresRepository> logger)
+            : base(bookShopContext)
         {
-            OperationResult result = new OperationResult();
-
-            try
-            {
-                result = await base.Save(autores);
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Message = "Ha ocurrido un error guardando el autor.";
-                _logger.LogError(result.Message, ex.ToString());
-            }
-            return result;
-        }
-
-        public async override Task<OperationResult> Update(Autores autores)
-        {
-            OperationResult result = new OperationResult();
-
-            try
-            {
-                Autores? autoresToUpdate = await _bookShopContext.Autores.FindAsync(autores.AutorID);
-
-                autoresToUpdate.AutorID = autores.AutorID;
-                autoresToUpdate.Nombre = autores.Nombre;
-                autoresToUpdate.Apellido = autores.Apellido;
-                autoresToUpdate.FechaNacimiento = autores.FechaNacimiento;
-                autoresToUpdate.Pais = autores.Pais;
-
-                result = await base.Update(autoresToUpdate);    
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Message = "Ha ocurrido un error actualizando el autor.";
-                _logger.LogError(result.Message, ex.ToString());
-            }
-            return result;
-        }
-
-        public async override Task<OperationResult> Remove(Autores autores)
-        {
-            OperationResult result = new OperationResult();
-
-            try
-            {
-                result = await base.Remove(autores);
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Message = "Ha ocurrido un error eliminando el autor.";
-                _logger.LogError(result.Message, ex.ToString());
-            }
-            return result;
+            _bookShopContext = bookShopContext;
+            _logger = logger;
         }
 
         public async override Task<OperationResult> GetAll()
         {
             OperationResult result = new OperationResult();
-
             try
             {
-                result.Data = await (from autores in _bookShopContext.Autores
+                var autores = await _bookShopContext.Autores
+                    .AsNoTracking()
+                    .ToListAsync();
 
-                                     select new AutoresModel
-                                     {
-                                         AutorID = autores.AutorID,
-                                         Nombre = autores.Nombre,
-                                         Apellido = autores.Apellido,
-                                         FechaNacimiento = autores.FechaNacimiento,
-                                         Pais = autores.Pais
-
-                                     }).AsNoTracking()
-                                     .ToListAsync();
+                result.Data = autores;
             }
             catch (Exception ex)
             {
                 result.Success = false;
                 result.Message = "Ha ocurrido un error obteniendo los autores.";
-                _logger.LogError(result.Message, ex.ToString());
+                _logger.LogError(ex, result.Message);
             }
             return result;
         }
-        public async override Task<OperationResult> GetById(int Id)
+
+        public async override Task<OperationResult> GetById(int id)
         {
             OperationResult result = new OperationResult();
-
             try
             {
-                result.Data = await (from autores in _bookShopContext.Autores
-                                     where autores.AutorID == Id    
+                var autor = await _bookShopContext.Autores
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.AutorID == id);
 
-                                     select new AutoresModel
-                                     {
-                                         AutorID = autores.AutorID,
-                                         Nombre = autores.Nombre,
-                                         Apellido = autores.Apellido,
-                                         FechaNacimiento = autores.FechaNacimiento,
-                                         Pais = autores.Pais
-
-                                     }).AsNoTracking()
-                                     .FirstOrDefaultAsync();
+                result.Data = autor;
             }
             catch (Exception ex)
             {
                 result.Success = false;
                 result.Message = "Ha ocurrido un error obteniendo el autor.";
-                _logger.LogError(result.Message, ex.ToString());
+                _logger.LogError(ex, result.Message);
             }
             return result;
+        }
+
+        public async override Task<OperationResult> Save(Autores entity)
+        {
+            return await base.Save(entity);
+        }
+
+        public async override Task<OperationResult> Update(Autores entity)
+        {
+            return await base.Update(entity);
+        }
+
+        public async override Task<OperationResult> Remove(Autores entity)
+        {
+            return await base.Remove(entity);
         }
     }
 }
