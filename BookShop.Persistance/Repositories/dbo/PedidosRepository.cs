@@ -1,6 +1,7 @@
 ﻿using BookShop.Domain.Entities.dbo;
 using BookShop.Persistance.Context;
 using BookShop.Persistance.Interfaces.dbo;
+using BookShop.Persistance.Validations.dbo;
 using Microsoft.Extensions.Logging;
 using RealEstate.Domain.Result;
 using RealEstate.Persistance.Base;
@@ -8,14 +9,24 @@ using RealEstate.Persistance.Base;
 namespace BookShop.Persistance.Repositories.dbo
 {
     public sealed class PedidosRepository(BookShopContext bookShopContext,
-                                          ILogger<PedidosRepository> logger) : BaseRepository<Pedidos>(bookShopContext), IPedidosRepository
+                                          ILogger<PedidosRepository> logger, PedidosValidation pedidosValidation) : BaseRepository<Pedidos>(bookShopContext), IPedidosRepository
     {
         private readonly BookShopContext _bookShopContext = bookShopContext;
         private readonly ILogger<PedidosRepository> _logger = logger;
+        private readonly PedidosValidation _pedidosValidation = pedidosValidation;
 
         public async override Task<OperationResult> Save(Pedidos pedidos)
         {
             OperationResult result = new OperationResult();
+
+            var _validationResult = _pedidosValidation.ValidateSave(pedidos);
+            
+            if (!_validationResult.Success)
+            {
+                result.Success = false;
+                result.Message = _validationResult.Message;
+                return result;
+            }
 
             try
             {
@@ -29,9 +40,19 @@ namespace BookShop.Persistance.Repositories.dbo
             }
             return result;
         }
+
         public async override Task<OperationResult> Update(Pedidos pedidos)
         {
             OperationResult result = new OperationResult();
+
+            var validationResult = _pedidosValidation.ValidateUpdate(pedidos);
+            
+            if (!validationResult.Success)
+            {
+                result.Success = false;
+                result.Message = validationResult.Message;
+                return result;
+            }
 
             try
             {
@@ -55,6 +76,15 @@ namespace BookShop.Persistance.Repositories.dbo
         public async override Task<OperationResult> Remove(Pedidos pedidos)
         {
             OperationResult result = new OperationResult();
+
+            var validationResult = _pedidosValidation.ValidateRemove(pedidos);
+            
+            if (!validationResult.Success)
+            {
+                result.Success = false;
+                result.Message = validationResult.Message;
+                return result;
+            }
 
             try
             {

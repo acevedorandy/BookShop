@@ -1,9 +1,14 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace BookShop.Domain.Entities.dbo
 {
+    [Table("Libros", Schema = "dbo")]
     public class Libros
     {
+        [Key]
         public int LibroID { get; set; }
         public string Titulo { get; set; }
         public string ISBN { get; set; }

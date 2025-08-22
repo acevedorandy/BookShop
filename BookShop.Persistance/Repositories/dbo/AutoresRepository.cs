@@ -2,6 +2,7 @@
 using BookShop.Persistance.Context;
 using BookShop.Persistance.Interfaces.dbo;
 using BookShop.Persistance.Models.dbo;
+using BookShop.Persistance.Validations.dbo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RealEstate.Domain.Result;
@@ -10,14 +11,24 @@ using RealEstate.Persistance.Base;
 namespace BookShop.Persistance.Repositories.dbo
 {
     public sealed class AutoresRepository(BookShopContext bookShopContext,
-                                          ILogger<AutoresRepository> logger) : BaseRepository<Autores>(bookShopContext), IAutoresRepository
+                                          ILogger<AutoresRepository> logger, AutoresValidation autoresValidation) : BaseRepository<Autores>(bookShopContext), IAutoresRepository
     {
         private readonly BookShopContext _bookShopContext = bookShopContext;
         private readonly ILogger<AutoresRepository> _logger = logger;
+        private readonly AutoresValidation _autoresValidation = autoresValidation;
 
         public async override Task<OperationResult> Save(Autores autores)
         {
             OperationResult result = new OperationResult();
+
+            var valiadtionResult = _autoresValidation.ValidateSave(autores);
+
+            if (!valiadtionResult.Success)
+            {
+                result.Success = false;
+                result.Message = valiadtionResult.Message;
+                return result;
+            }
 
             try
             {
@@ -35,6 +46,14 @@ namespace BookShop.Persistance.Repositories.dbo
         public async override Task<OperationResult> Update(Autores autores)
         {
             OperationResult result = new OperationResult();
+
+            var validationResult = _autoresValidation.ValidateUpdate(autores);
+            if (!validationResult.Success)
+            {
+                result.Success = false;
+                result.Message = validationResult.Message;
+                return result;
+            }
 
             try
             {
@@ -60,6 +79,15 @@ namespace BookShop.Persistance.Repositories.dbo
         public async override Task<OperationResult> Remove(Autores autores)
         {
             OperationResult result = new OperationResult();
+
+            var validationResult = _autoresValidation.ValidateRemove(autores);
+            
+            if (!validationResult.Success)
+            {
+                result.Success = false;
+                result.Message = validationResult.Message;
+                return result;
+            }
 
             try
             {
@@ -101,6 +129,7 @@ namespace BookShop.Persistance.Repositories.dbo
             }
             return result;
         }
+
         public async override Task<OperationResult> GetById(int Id)
         {
             OperationResult result = new OperationResult();
